@@ -1,0 +1,316 @@
+<script setup>
+import { ref } from "vue";
+
+const list = ref("");
+const isActive = ref(false);
+
+let products = ref([
+  {
+    id: 1,
+    name: "product 1",
+    img: "./1.png",
+    price: 2400,
+  },
+  {
+    id: 2,
+    name: "product 2",
+    img: "./2.png",
+    price: 2000,
+  },
+  {
+    id: 3,
+    name: "product 3",
+    img: "./img.jpeg",
+    price: 2600,
+  },
+  {
+    id: 4,
+    name: "product 4",
+    img: "./img.jpeg",
+    price: 2000,
+  },
+  {
+    id: 5,
+    name: "product 5",
+    img: "./1.png",
+    price: 1600,
+  },
+  {
+    id: 6,
+    name: "product 6",
+    img: "./2.png",
+    price: 1800,
+  },
+]);
+let listCards = [];
+const addToCart = (key) => {
+  if (listCards[key] == null) {
+    listCards[key] = JSON.parse(JSON.stringify(products[key]));
+    listCards[key].quantity = 1;
+  }
+
+  reloadCard();
+};
+
+const reloadCard = () => {
+  listCards.innerHTML = "";
+  let count = 0;
+  let totalPrice = 0;
+
+  listCards.forEach((value, key) => {
+    totalPrice += value.price;
+    count += value.quantity;
+
+    if (value != null) {
+      let newDiv = document.createElement("li");
+      newDiv.innerHTML = `
+      <div>
+        <img src="${value.img}">
+      </div>
+      <div class="cardTitle">${value.name}</div>
+      <div class="cardPrice">${value.price.toLocaleString()}</div>
+      <div>
+        <button style="background-color:#560bad" class="cardButton" 
+        onclick="changeQuantity(${key}, ${value.quantity - 1}")>-</button>  
+        <div class="count">${count}</div>
+        <button style="background-color:#560bad" class="cardButton" 
+        onclick="changeQuantity(${key}, ${value.quantity + 1})">+</button>  
+      </div>
+      `;
+      listCards.appendChild(newDiv);
+    }
+    total.innerText = totalPrice.toLocaleString();
+    quantity.innerText = count;
+  });
+};
+
+const changeQuantity = (key, quantity) => {
+  if (quantity == 0) {
+    delete listCards[key];
+  } else {
+    listCards[key].quantity = quantity;
+    listCards[key].price = quantity * products[key].price;
+  }
+  reloadCard();
+};
+</script>
+
+<template>
+  <div class="container">
+    <header>
+      <h1>shopping</h1>
+      <div class="shopping" @click="isActive = true">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke-width="1.5"
+          stroke="currentColor"
+          class="w-6 h-6"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            d="M15.75 10.5V6a3.75 3.75 0 10-7.5 0v4.5m11.356-1.993l1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 01-1.12-1.243l1.264-12A1.125 1.125 0 015.513 7.5h12.974c.576 0 1.059.435 1.119 1.007zM8.625 10.5a.375.375 0 11-.75 0 .375.375 0 01.75 0zm7.5 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z"
+          />
+        </svg>
+
+        <span class="quantity">0</span>
+      </div>
+    </header>
+
+    <div class="list">
+      <div class="item" v-for="product in products" :key="product.id">
+        <img :src="product.img" />
+        <div class="title">{{ product.name }}</div>
+        <div class="price">{{ product.price.toLocaleString() }}</div>
+        <button @click="addToCart">Add To Cart</button>
+      </div>
+    </div>
+  </div>
+  <div class="card" :class="{active:isActive}">
+    <h1>Card</h1>
+    <ul class="listCard"></ul>
+    <div class="checkout">
+      <div class="total">0</div>
+      <div class="closeShopping" @click="isActive = false">Close</div>
+    </div>
+  </div>
+</template>
+
+<style scoped>
+.container {
+  width: 1000px;
+  margin: auto;
+  transition: 0.5s;
+}
+
+h1 {
+  color: hsla(160, 100%, 37%, 1);
+}
+header {
+  display: grid;
+  grid-template-columns: 1fr 50px;
+  margin-top: 50px;
+}
+.shopping {
+  position: relative;
+  text-align: right;
+}
+.shopping svg {
+  cursor: pointer;
+  width: 30px;
+  height: 30px;
+}
+
+.shopping svg:hover {
+}
+
+span {
+  background: red;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: #fff;
+  position: absolute;
+  top: -5px;
+  left: 50px;
+  padding: 3px 10px;
+}
+.list {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+  margin-top: 50px;
+}
+
+.card {
+  position: fixed;
+  top: 0;
+  left: 100%;
+  width: 500px;
+  background-color: #dadada;
+  border-left: 1px solid var(--col1);
+  height: 100vh;
+  transition: 0.5s;
+}
+.active  {
+  left: calc(100% - 500px);
+}
+.active {
+  transform: translateX(-200px);
+}
+.card h1 {
+  color: var(--col1);
+  font-weight: 300;
+  margin: 0;
+  padding: 0 20px;
+  height: 80px;
+  display: flex;
+  align-items: center;
+}
+
+.card .checkout {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+}
+.card .checkout div {
+  background-color: var(--col1);
+  color: #fff;
+  width: 100%;
+  height: 70px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.card .checkout div:nth-child(2) {
+  background-color: #000;
+  color: #fff;
+}
+.list .item {
+  text-align: center;
+  background: efefef;
+  padding: 20px;
+  box-shadow: 0 50px 50px #757676;
+  letter-spacing: 1px;
+  transition: all 0.25s ease;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.list .item:hover {
+  background-color: #7842b6;
+}
+.list .item img {
+  width: 90%;
+  height: 250px;
+}
+.list .item .title {
+  font-weight: 600;
+}
+.price {
+  margin: 10px;
+}
+.item:hover .title,
+.item:hover .price {
+  color: #efefef;
+}
+.item button {
+  background-color: #efefef;
+  color: var(--col1);
+  font-size: 1rem;
+  font-weight: 600;
+  width: 100%;
+  padding: 10px;
+  border: 3px solid var(--col1);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+.list .item button:hover {
+  background-color: var(--col1);
+  color: #efefef;
+}
+.listCard li {
+  display: grid;
+  grid-template-columns: 100px repeat(3, 1fr);
+  color: #fff;
+  row-gap: 10px;
+}
+.listCard li div {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.listCard li img {
+  width: 90%;
+}
+.listCard .count {
+  margin: 0px 10px;
+  color: #1f1f25;
+}
+.cardTitle,
+.cardPrice {
+  color: #1f1f25;
+}
+.cardButton {
+  width: 20px;
+  height: 10px;
+  color: #efefef;
+  font-size: 1.5rem;
+  font-weight: 500;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+}
+</style>
