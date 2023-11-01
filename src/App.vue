@@ -42,11 +42,20 @@ let products = ref([
     price: 1800,
   },
 ]);
-let listCards = [];
+
+let listCards = ref([]);
+
 const addToCart = (key) => {
-  if (listCards[key] == null) {
-    listCards[key] = JSON.parse(JSON.stringify(products[key]));
-    listCards[key].quantity = 1;
+  if (listCards.value[key] == null) {
+    //  listCards.value[key] = products.value[key]
+    listCards.value[key] = JSON.parse(JSON.stringify(products.value[key]));
+    listCards.value[key].quantity = 1;
+
+    console.log(key);
+    console.log(listCards.value);
+    console.log(listCards.value[key]);
+    console.log(products);
+    console.log(products.value[key]);
   }
 
   reloadCard();
@@ -57,30 +66,16 @@ const reloadCard = () => {
   let count = 0;
   let totalPrice = 0;
 
-  listCards.forEach((value, key) => {
+  listCards.value.forEach((value, key) => {
     totalPrice += value.price;
     count += value.quantity;
 
     if (value != null) {
-      let newDiv = document.createElement("li");
-      newDiv.innerHTML = `
-      <div>
-        <img src="${value.img}">
-      </div>
-      <div class="cardTitle">${value.name}</div>
-      <div class="cardPrice">${value.price.toLocaleString()}</div>
-      <div>
-        <button style="background-color:#560bad" class="cardButton" 
-        onclick="changeQuantity(${key}, ${value.quantity - 1}")>-</button>  
-        <div class="count">${count}</div>
-        <button style="background-color:#560bad" class="cardButton" 
-        onclick="changeQuantity(${key}, ${value.quantity + 1})">+</button>  
-      </div>
-      `;
-      listCards.appendChild(newDiv);
     }
-    total.innerText = totalPrice.toLocaleString();
-    quantity.innerText = count;
+    //    total.innerText = totalPrice.toLocaleString();
+    //  quantity.innerText = count;
+    console.log(totalPrice);
+    console.log(count);
   });
 };
 
@@ -96,7 +91,7 @@ const changeQuantity = (key, quantity) => {
 </script>
 
 <template>
-  <div class="container">
+  <div class="container" :class="{ active: isActive }">
     <header>
       <h1>shopping</h1>
       <div class="shopping" @click="isActive = true">
@@ -120,17 +115,42 @@ const changeQuantity = (key, quantity) => {
     </header>
 
     <div class="list">
-      <div class="item" v-for="product in products" :key="product.id">
+      <div class="item" v-for="(product, i) in products" :key="product.id">
         <img :src="product.img" />
         <div class="title">{{ product.name }}</div>
         <div class="price">{{ product.price.toLocaleString() }}</div>
-        <button @click="addToCart">Add To Cart</button>
+        <button @click="addToCart(i)">Add To Cart</button>
       </div>
     </div>
   </div>
-  <div class="card" :class="{active:isActive}">
+  <div class="card" :class="{ active: isActive }">
     <h1>Card</h1>
-    <ul class="listCard"></ul>
+    <ul class="listCard" v-if="listCards.length > 0">
+      <li v-for="(card, i) in listCards" :key="i">
+        <div>
+          <img :src="card.img" />
+        </div>
+        <div class="cardTitle"> card.name </div>
+        <div class="cardPrice">{{ card.price.toLocaleString() }}</div>
+        <div>
+          <button
+            style="background-color: #560bad"
+            class="cardButton"
+            @click="changeQuantity(card.key, card.quantity - 1)"
+          >
+            -
+          </button>
+          <div class="count">${count}</div>
+          <button
+            style="background-color: #560bad"
+            class="cardButton"
+            @click="changeQuantity(card.key, card.quantity + 1)"
+          >
+            +
+          </button>
+        </div>
+      </li>
+    </ul>
     <div class="checkout">
       <div class="total">0</div>
       <div class="closeShopping" @click="isActive = false">Close</div>
@@ -167,7 +187,7 @@ header {
 }
 
 span {
-  background: red;
+  background-color: red;
   border-radius: 50%;
   display: flex;
   justify-content: center;
@@ -191,14 +211,14 @@ span {
   left: 100%;
   width: 500px;
   background-color: #dadada;
-  border-left: 1px solid var(--col1);
+  border-left: 1px solid var(--green);
   height: 100vh;
   transition: 0.5s;
 }
-.active  {
+.card.active {
   left: calc(100% - 500px);
 }
-.active {
+.container.active {
   transform: translateX(-200px);
 }
 .card h1 {
@@ -236,7 +256,7 @@ span {
 }
 .list .item {
   text-align: center;
-  background: efefef;
+  background: #efefef;
   padding: 20px;
   box-shadow: 0 50px 50px #757676;
   letter-spacing: 1px;
@@ -246,7 +266,7 @@ span {
 }
 
 .list .item:hover {
-  background-color: #7842b6;
+  background-color: var(--hover-color);
 }
 .list .item img {
   width: 90%;

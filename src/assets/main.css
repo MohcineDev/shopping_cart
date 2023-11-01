@@ -1,18 +1,19 @@
 #app {
   max-width: 1280px;
   margin: 0 auto;
-  padding: 2rem;
   font-family: Arial, Helvetica, sans-serif;
 
   font-weight: normal;
 }
 :root {
   --col1: #560bad;
+ --green: hsla(160, 100%, 37%, 1);
+ --hover-color:hsl(194.4, 42.1%, 44.7%);
 }
 a,
 .green {
   text-decoration: none;
-  color: hsla(160, 100%, 37%, 1);
+  color: var(--green);
   transition: 0.4s;
 }
 
