@@ -1,8 +1,8 @@
 <script setup>
 import { ref } from "vue";
 
-const list = ref("");
 const isActive = ref(false);
+let totalPrice = ref(0);
 
 let products = ref([
   {
@@ -47,47 +47,29 @@ let listCards = ref([]);
 
 const addToCart = (key) => {
   if (listCards.value[key] == null) {
-    //  listCards.value[key] = products.value[key]
     listCards.value[key] = JSON.parse(JSON.stringify(products.value[key]));
     listCards.value[key].quantity = 1;
-
-    console.log(key);
-    console.log(listCards.value);
-    console.log(listCards.value[key]);
-    console.log(products);
-    console.log(products.value[key]);
   }
-
   reloadCard();
 };
-
+///[...,1]
 const reloadCard = () => {
-  listCards.innerHTML = "";
-  let count = 0;
-  let totalPrice = 0;
-
-  listCards.value.forEach((value, key) => {
-    totalPrice += value.price;
-    count += value.quantity;
-
-    if (value != null) {
-    }
-    //    total.innerText = totalPrice.toLocaleString();
-    //  quantity.innerText = count;
-    console.log(totalPrice);
-    console.log(count);
-  });
+  listCards.value.forEach((value, i)  =>  {
+    console.log(i)
+      totalPrice.value += parseInt(value.price)
+  })
 };
 
-const changeQuantity = (key, quantity) => {
+function changeQuantity(cardId, quantity) {
+  console.log(cardId)
   if (quantity == 0) {
-    delete listCards[key];
-  } else {
-    listCards[key].quantity = quantity;
-    listCards[key].price = quantity * products[key].price;
+    delete listCards.value[cardId];
+  } else { 
+      listCards.value[cardId].quantity = quantity;
+      listCards.value[cardId].price = quantity * products.value[cardId].price;
   }
-  reloadCard();
-};
+//  reloadCard();
+}
 </script>
 
 <template>
@@ -127,32 +109,32 @@ const changeQuantity = (key, quantity) => {
     <h1>Card</h1>
     <ul class="listCard" v-if="listCards.length > 0">
       <li v-for="(card, i) in listCards" :key="i">
-        <div>
-          <img :src="card.img" />
-        </div>
-        <div class="cardTitle"> card.name </div>
-        <div class="cardPrice">{{ card.price.toLocaleString() }}</div>
-        <div>
-          <button
-            style="background-color: #560bad"
-            class="cardButton"
-            @click="changeQuantity(card.key, card.quantity - 1)"
-          >
-            -
-          </button>
-          <div class="count">${count}</div>
-          <button
-            style="background-color: #560bad"
-            class="cardButton"
-            @click="changeQuantity(card.key, card.quantity + 1)"
-          >
-            +
-          </button>
-        </div>
+        <template v-if="card != null">
+          <div>
+            <img :src="card.img" />
+          </div>
+          <div class="cardTitle">{{ card.name }}</div>
+          <div class="cardPrice">{{ card.price.toLocaleString() }}</div>
+          <div class="btns">
+            <button
+              class="cardButton"
+              @click="changeQuantity(i, card.quantity - 1)"
+            >
+              -
+            </button>
+            <div class="count">{{ card.quantity }}</div>
+            <button
+              class="cardButton"
+              @click="changeQuantity(i, card.quantity + 1)"
+            >
+              +
+            </button>
+          </div>
+        </template>
       </li>
     </ul>
     <div class="checkout">
-      <div class="total">0</div>
+      <div class="total">{{ totalPrice }}</div>
       <div class="closeShopping" @click="isActive = false">Close</div>
     </div>
   </div>
@@ -182,10 +164,6 @@ header {
   width: 30px;
   height: 30px;
 }
-
-.shopping svg:hover {
-}
-
 span {
   background-color: red;
   border-radius: 50%;
@@ -209,6 +187,8 @@ span {
   position: fixed;
   top: 0;
   left: 100%;
+  left: calc(100% - 500px);
+
   width: 500px;
   background-color: #dadada;
   border-left: 1px solid var(--green);
@@ -231,6 +211,12 @@ span {
   align-items: center;
 }
 
+ul {
+  padding: 0;
+}
+li {
+  margin: 5px;
+}
 .card .checkout {
   position: absolute;
   bottom: 0;
@@ -302,10 +288,10 @@ span {
 .listCard li {
   display: grid;
   grid-template-columns: 100px repeat(3, 1fr);
-  color: #fff;
-  row-gap: 10px;
+  align-items: center;
+  justify-items: center;
 }
-.listCard li div {
+.listCard .btns {
   display: flex;
   justify-content: center;
   align-items: center;
@@ -322,15 +308,11 @@ span {
   color: #1f1f25;
 }
 .cardButton {
-  width: 20px;
-  height: 10px;
-  color: #efefef;
   font-size: 1.5rem;
   font-weight: 500;
   border-radius: 50%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
+  background-color: transparent;
   cursor: pointer;
+  border: none;
 }
 </style>
