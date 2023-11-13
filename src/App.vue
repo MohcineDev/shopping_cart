@@ -2,6 +2,7 @@
 import { ref } from "vue";
 
 const isActive = ref(false);
+const quantity = ref(0)
 let totalPrice = ref(0);
 
 let products = ref([
@@ -49,26 +50,27 @@ const addToCart = (key) => {
   if (listCards.value[key] == null) {
     listCards.value[key] = JSON.parse(JSON.stringify(products.value[key]));
     listCards.value[key].quantity = 1;
+    quantity.value++
   }
   reloadCard();
 };
 ///[...,1]
 const reloadCard = () => {
+  totalPrice.value = 0
   listCards.value.forEach((value, i)  =>  {
-    console.log(i)
       totalPrice.value += parseInt(value.price)
   })
 };
 
-function changeQuantity(cardId, quantity) {
-  console.log(cardId)
-  if (quantity == 0) {
+function changeQuantity(cardId, qty) {
+  if (qty == 0) {
     delete listCards.value[cardId];
+    quantity.value -=1
   } else { 
-      listCards.value[cardId].quantity = quantity;
-      listCards.value[cardId].price = quantity * products.value[cardId].price;
+      listCards.value[cardId].quantity = qty;
+      listCards.value[cardId].price = qty * products.value[cardId].price;
   }
-//  reloadCard();
+ reloadCard();
 }
 </script>
 
@@ -92,7 +94,7 @@ function changeQuantity(cardId, quantity) {
           />
         </svg>
 
-        <span class="quantity">0</span>
+        <span class="quantity">{{ quantity }}</span>
       </div>
     </header>
 
@@ -142,7 +144,7 @@ function changeQuantity(cardId, quantity) {
 
 <style scoped>
 .container {
-  width: 1000px;
+  max-width: 1200px;
   margin: auto;
   transition: 0.5s;
 }
@@ -151,44 +153,43 @@ h1 {
   color: hsla(160, 100%, 37%, 1);
 }
 header {
-  display: grid;
-  grid-template-columns: 1fr 50px;
+  display: flex;
   margin-top: 50px;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 20px;
 }
 .shopping {
   position: relative;
   text-align: right;
 }
 .shopping svg {
-  cursor: pointer;
   width: 30px;
   height: 30px;
+  cursor: pointer;
 }
 span {
-  background-color: red;
-  border-radius: 50%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  color: #fff;
   position: absolute;
-  top: -5px;
-  left: 50px;
-  padding: 3px 10px;
+  top: -10px;
+  left: 20px;
+  padding: 5px;
+  font-size: 14px;
+  color: #fff;
+  background-color: #ea1a1a;
+  border-radius: 20%;
 }
 .list {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(3, 250px);
   gap: 20px;
-  margin-top: 50px;
+  margin: 50px 0;
+  justify-content: center;
 }
 
 .card {
   position: fixed;
   top: 0;
   left: 100%;
-  left: calc(100% - 500px);
-
   width: 500px;
   background-color: #dadada;
   border-left: 1px solid var(--green);
@@ -244,19 +245,20 @@ li {
   text-align: center;
   background: #efefef;
   padding: 20px;
-  box-shadow: 0 50px 50px #757676;
+  box-shadow: 0 15px 15px #aaa;
   letter-spacing: 1px;
   transition: all 0.25s ease;
   border-radius: 8px;
   cursor: pointer;
+  transition: box-shadow 0.3s;
 }
 
 .list .item:hover {
-  background-color: var(--hover-color);
+  box-shadow: 0 10px 10px #aaa;
+
 }
 .list .item img {
   width: 90%;
-  height: 250px;
 }
 .list .item .title {
   font-weight: 600;
@@ -264,27 +266,20 @@ li {
 .price {
   margin: 10px;
 }
-.item:hover .title,
-.item:hover .price {
-  color: #efefef;
-}
+
 .item button {
   background-color: #efefef;
-  color: var(--col1);
+  color: var(--green);
   font-size: 1rem;
   font-weight: 600;
   width: 100%;
   padding: 10px;
-  border: 3px solid var(--col1);
+  border: 3px solid var(--green);
   border-radius: 8px;
   cursor: pointer;
   transition: all 0.25s ease;
 }
-
-.list .item button:hover {
-  background-color: var(--col1);
-  color: #efefef;
-}
+ 
 .listCard li {
   display: grid;
   grid-template-columns: 100px repeat(3, 1fr);
